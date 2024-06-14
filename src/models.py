@@ -1,14 +1,15 @@
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.orm import relationship
 
 db = SQLAlchemy()
 class Favorites(db.Model):
     __tablename__ = 'favorites'
     id = db.Column(db.Integer, primary_key=True)
-    user_id= db.Column(db.Integer, db.ForeignKey("user.id"))
+    user_id= db.Column(db.Integer, db.ForeignKey("user.id"), nullable=False)
     character_id = db.Column(db.Integer, db.ForeignKey("character.id"))
     planets_id = db.Column(db.Integer, db.ForeignKey("planets.id"))
     startships_id = db.Column(db.Integer, db.ForeignKey("starships.id"))
-
+    
 
     def __repr__(self):
         return '<Favorites %r>' % self.user_id
@@ -26,22 +27,22 @@ class Favorites(db.Model):
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    userName = db.Column(db.String(250), nullable=False)
+    userName = db.Column(db.String(120), nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
     password = db.Column(db.String(80), unique=False, nullable=False)
-    age= db.Column(db.String(250), nullable=False)
-
+    age= db.Column(db.String(3), nullable=False)
+    favorites = db.relationship('Favorites', backref='user', lazy=True)
     def __repr__(self):
         return '<User %r>' % self.userName
 
     def serialize(self):
-        return { 
+        
+        return {
             "id": self.id,
             "userName": self.userName,
             "email": self.email,
-            "password" : self.password ,
-            "age": self.age,
-            
+            "password": self.password,
+            "age": self.age
         }
     
 class Character(db.Model):
